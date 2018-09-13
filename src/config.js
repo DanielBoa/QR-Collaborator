@@ -1,6 +1,7 @@
 export default {
   grid: {
-    width: 29,
-    height: 29,
+    margin: 5,
+    width: 33,
+    height: 33,
   },
 };

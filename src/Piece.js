@@ -1,4 +1,4 @@
-import { ctx } from './canvas';
+import { ctx, p } from './canvas';
 
 export default class Piece {
   constructor(shape = [], x = 0, y = 0) {
@@ -19,7 +19,7 @@ export default class Piece {
 
     if (isBeingDragged) {
       ctx.strokeStyle = 'red';
-      ctx.lineWidth = 0.5;
+      ctx.lineWidth = p(10);
       ctx.strokeRect(0, 0, width, height);
     }
 
@@ -30,7 +30,7 @@ export default class Piece {
         const isBlack = (row[x] === 1);
 
         ctx.fillStyle = isBlack ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.5)';
-        ctx.fillRect(x, y, 1, 1);
+        ctx.fillRect(x - p(0.5), y - p(0.5), 1 + p(), 1 + p());
       }
     }
 

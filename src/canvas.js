@@ -9,8 +9,8 @@ let _gridOffset = { x: 0, y: 0 };
 let _startPointerPos = null;
 let _dragging = null;
 
-//  convert grid position to pixel value
-export const c = (position = 1) => position;
+//  convert pixel to world length
+export const p = (pixel = 1) => pixel / _scale;
 
 //  convert pixel to grid position (relative to grid)
 export const pixelToGridPos = ({ x, y } = { x: 0, y: 0 }) => {
@@ -23,11 +23,13 @@ export const pixelToGridPos = ({ x, y } = { x: 0, y: 0 }) => {
 //  set the pixel width/height of the canvas as well as the global scale value
 export function setupSizes() {
   const { innerWidth: width, innerHeight: height } = window;
-  const { grid: { width: gridWidth, height: gridHeight } } = config;
-  
-  _scale = width > height ? (height / c(gridHeight)) : (width / c(gridWidth));
-  _gridOffset.x = ((width / _scale) - c(gridWidth)) / 2;
-  _gridOffset.y = ((height / _scale) - c(gridHeight)) / 2;
+  const { grid: { width: gridWidth, height: gridHeight, margin } } = config;
+  const totalGridHeight = gridHeight + (2 * margin);
+  const totalGridWidth = gridWidth + (2 * margin);
+
+  _scale = width > height ? (height / totalGridHeight) : (width / totalGridWidth);
+  _gridOffset.x = ((width / _scale) - gridWidth) / 2;
+  _gridOffset.y = ((height / _scale) - gridHeight) / 2;
 
   canvas.width = width;
   canvas.height = height;
@@ -37,7 +39,7 @@ export function setupSizes() {
 export function clear() {
   const { width, height } = canvas;
 
-  ctx.clearRect(0, 0, c(width), c(height));
+  ctx.clearRect(0, 0, width, height);
 }
 
 //  start drawing loop using requestAnimationFrame
