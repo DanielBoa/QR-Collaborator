@@ -1,4 +1,4 @@
-import { c, ctx } from './canvas';
+import { ctx } from './canvas';
 import config from './config';
 
 export function draw() {
@@ -11,7 +11,7 @@ export function draw() {
       const opacity = (((y * width) + x) % 2) ? 0.1 : 0.2;
 
       ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
-      ctx.fillRect(c(x), c(y), c(), c());
+      ctx.fillRect(x, y, 1, 1);
     }
   }
 

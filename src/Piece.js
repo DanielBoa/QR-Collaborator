@@ -1,4 +1,4 @@
-import { c, ctx } from './canvas';
+import { ctx } from './canvas';
 
 export default class Piece {
   constructor(shape = [], x = 0, y = 0) {
@@ -15,12 +15,12 @@ export default class Piece {
     const y = pos.y + dragPos.y;
 
     ctx.save();
-    ctx.translate(c(x), c(y));
+    ctx.translate(x, y);
 
     if (isBeingDragged) {
       ctx.strokeStyle = 'red';
-      ctx.lineWidth = 50;
-      ctx.strokeRect(0, 0, c(width), c(height));
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(0, 0, width, height);
     }
 
     for (let y = 0; y < height; y++) {
@@ -30,7 +30,7 @@ export default class Piece {
         const isBlack = (row[x] === 1);
 
         ctx.fillStyle = isBlack ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.5)';
-        ctx.fillRect(c(x), c(y), c(), c());
+        ctx.fillRect(x, y, 1, 1);
       }
     }
 
@@ -45,7 +45,18 @@ export default class Piece {
 
   }
 
+  pointerDragEnd() {
+    const { dragPos } = this;
+
+    this.isBeingDragged = false;
+    this.x = this.x + Math.round(dragPos.x);
+    this.y = this.y + Math.round(dragPos.y);
+    this.dragPos.x = 0;
+    this.dragPos.y = 0;
+  }
+
   pointerDrag(dragPos) {
+    this.isBeingDragged = true;
     this.dragPos.x = dragPos.x;
     this.dragPos.y = dragPos.y;
   }

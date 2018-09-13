@@ -5,21 +5,18 @@ export const ctx = canvas.getContext('2d');
 
 const _items = [];
 let _scale = null;
-let _xOffset = 0;
-let _yOffset = 0;
+let _gridOffset = { x: 0, y: 0 };
 let _startPointerPos = null;
 let _dragging = null;
 
 //  convert grid position to pixel value
-export const c = (position = 1) => position * config.grid.blockSize;
+export const c = (position = 1) => position;
 
 //  convert pixel to grid position (relative to grid)
 export const pixelToGridPos = ({ x, y } = { x: 0, y: 0 }) => {
-  const { grid: { blockSize } } = config;
-
   return {
-    x: (x / _scale / blockSize) - (_xOffset / blockSize),
-    y: (y / _scale / blockSize) - (_yOffset / blockSize),
+    x: (x / _scale) - _gridOffset.x,
+    y: (y / _scale) - _gridOffset.y,
   };
 };
 
@@ -29,8 +26,8 @@ export function setupSizes() {
   const { grid: { width: gridWidth, height: gridHeight } } = config;
   
   _scale = width > height ? (height / c(gridHeight)) : (width / c(gridWidth));
-  _xOffset = ((width / _scale) - c(gridWidth)) / 2;
-  _yOffset = ((height / _scale) - c(gridHeight)) / 2;
+  _gridOffset.x = ((width / _scale) - c(gridWidth)) / 2;
+  _gridOffset.y = ((height / _scale) - c(gridHeight)) / 2;
 
   canvas.width = width;
   canvas.height = height;
@@ -53,7 +50,7 @@ export function startDrawing() {
 
     ctx.save();
     ctx.scale(_scale, _scale);
-    ctx.translate(_xOffset, _yOffset);
+    ctx.translate(_gridOffset.x, _gridOffset.y);
   
     for (const item of _items) {
       if (typeof item.draw === 'function') item.draw();
@@ -89,7 +86,7 @@ export function findInteractiveItemAtPos(pos) {
 
 canvas.addEventListener('pointerdown', (e) => {
   e.preventDefault();
-  
+
   const item = findInteractiveItemAtPos(e);
 
   _startPointerPos = pixelToGridPos(e);
@@ -103,32 +100,31 @@ canvas.addEventListener('pointerdown', (e) => {
 
 canvas.addEventListener('pointermove', (e) => {
   e.preventDefault();
-  
+
   if (!_dragging) return;
 
-  _dragging.isBeingDragged = true;
-
   const newPointerPos = pixelToGridPos(e);
+  const draggedDistance = {
+    x: newPointerPos.x - _startPointerPos.x,
+    y: newPointerPos.y - _startPointerPos.y,
+  };
 
-  newPointerPos.x = newPointerPos.x - _startPointerPos.x;
-  newPointerPos.y = newPointerPos.y - _startPointerPos.y;
-
-  if (_dragging.pointerDrag) _dragging.pointerDrag(newPointerPos);
+  if (_dragging.pointerDrag) _dragging.pointerDrag(draggedDistance);
 });
 
 canvas.addEventListener('pointerup', (e) => {
   e.preventDefault();
-  
+
   const item = findInteractiveItemAtPos(e);
 
   if (_dragging) {
-    _dragging.isBeingDragged = false;  
+    if (_dragging.pointerDragEnd) _dragging.pointerDragEnd();
     _dragging = null;
   }
 
-  if (!item) return;
-
-  if (item.pointerUp) item.pointerUp();
+  if (item) {
+    if (item.pointerUp) item.pointerUp();
+  }
 });
 
 window.addEventListener('resize', setupSizes);
