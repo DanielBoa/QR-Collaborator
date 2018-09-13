@@ -18,7 +18,7 @@ export default class Piece {
     ctx.translate(c(x), c(y));
 
     if (isBeingDragged) {
-      ctx.strokeStyle = isBeingDragged ? 'red' : null;
+      ctx.strokeStyle = 'red';
       ctx.lineWidth = 50;
       ctx.strokeRect(0, 0, c(width), c(height));
     }
