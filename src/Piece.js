@@ -3,20 +3,30 @@ import { c, ctx } from './canvas';
 export default class Piece {
   constructor(shape = [], x = 0, y = 0) {
     this.isInteractive = true;
+    this.isBeingDragged = false;
     this.shape = shape;
     this.pos = { x, y };
+    this.dragPos =  { x: 0, y: 0 };
   }
 
   draw() {
-    const { shape, pos } = this;
+    const { shape, pos, dragPos, isBeingDragged, width, height } = this;
+    const x = pos.x + dragPos.x;
+    const y = pos.y + dragPos.y;
 
     ctx.save();
-    ctx.translate(c(pos.x), c(pos.y)); 
+    ctx.translate(c(x), c(y));
 
-    for (let y = 0; y < this.height; y++) {
+    if (isBeingDragged) {
+      ctx.strokeStyle = isBeingDragged ? 'red' : null;
+      ctx.lineWidth = 50;
+      ctx.strokeRect(0, 0, c(width), c(height));
+    }
+
+    for (let y = 0; y < height; y++) {
       let row = shape[y];
 
-      for (let x = 0; x < this.width; x++) {
+      for (let x = 0; x < width; x++) {
         const isBlack = (row[x] === 1);
 
         ctx.fillStyle = isBlack ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.5)';
@@ -25,6 +35,19 @@ export default class Piece {
     }
 
     ctx.restore();
+  }
+
+  pointerDown() {
+
+  }
+
+  pointerUp() {
+
+  }
+
+  pointerDrag(dragPos) {
+    this.dragPos.x = dragPos.x;
+    this.dragPos.y = dragPos.y;
   }
 
   set x(x) {

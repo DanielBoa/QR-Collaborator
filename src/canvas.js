@@ -7,6 +7,8 @@ const _items = [];
 let _scale = null;
 let _xOffset = 0;
 let _yOffset = 0;
+let _startPointerPos = null;
+let _dragging = null;
 
 //  convert grid position to pixel value
 export const c = (position = 1) => position * config.grid.blockSize;
@@ -86,19 +88,47 @@ export function findInteractiveItemAtPos(pos) {
 }
 
 canvas.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  
   const item = findInteractiveItemAtPos(e);
 
-  if (item && item.pointerDown) item.pointerDown(); 
+  _startPointerPos = pixelToGridPos(e);
+
+  if (!item) return;
+
+  if (item.pointerDown) item.pointerDown();
+
+  _dragging = item;
 });
 
 canvas.addEventListener('pointermove', (e) => {
-  // console.log(findInteractiveItemAtPos(e));
+  e.preventDefault();
+  
+  if (!_dragging) return;
+
+  _dragging.isBeingDragged = true;
+
+  const newPointerPos = pixelToGridPos(e);
+
+  newPointerPos.x = newPointerPos.x - _startPointerPos.x;
+  newPointerPos.y = newPointerPos.y - _startPointerPos.y;
+
+  if (_dragging.pointerDrag) _dragging.pointerDrag(newPointerPos);
 });
 
 canvas.addEventListener('pointerup', (e) => {
+  e.preventDefault();
+  
   const item = findInteractiveItemAtPos(e);
 
-  if (item && item.pointerUp) item.pointerUp(); 
+  if (_dragging) {
+    _dragging.isBeingDragged = false;  
+    _dragging = null;
+  }
+
+  if (!item) return;
+
+  if (item.pointerUp) item.pointerUp();
 });
 
 window.addEventListener('resize', setupSizes);
